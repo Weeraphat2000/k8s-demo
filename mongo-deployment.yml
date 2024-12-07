@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment # Deployment คือ การจัดการกับการรันของ Pod ใน Kubernetes
+metadata:
+  name: mongo-deployment
+spec:
+  replicas: 1 # จำนวน Pod ที่ต้องการให้รัน
+  selector:
+    matchLabels:
+      app: mongo # ให้ Deployment นี้จัดการกับ Pod ที่มี label ชื่อ component และมีค่าเป็น mongo
+  template:
+    metadata:
+      name: mongo-pods
+      labels:
+        app: mongo
+    spec: # specification of the pod's contents
+      containers:
+        - name: mongo
+          image: mongo
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db # กำหนด path ที่จะเก็บข้อมูลของ mongo
+      volumes:
+        - name: mongo-storage # กำหนดชื่อของ volume ต้องตรงกับ name ใน volumeMounts
+          persistentVolumeClaim:
+            claimName: mongo-pvc # กำหนดชื่อของ PVC ที่จะใช้  เอามาจาก mongo-pvc.yml ตรง metadata.name
+--- # ใช้ --- เพื่อแยก Deployment แต่ละอัน
+apiVersion: v1
+kind: Service # Service คือ การเชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ mongo
+metadata:
+  name: mongo-service # ชื่อของ Service แทนที่จะเรียกด้วย IP ใช้ชื่อ Service แทนได้เลย
+  # เช่น mongo://localhost:27017 => mongo://mongo-service
+  # คุยกันผ่าน clusterIP
+spec:
+  type: ClusterIP # clusterIP คือ เชื่อมต่อระหว่าง Pod และ Pod ใน Cluster เท่านั้น
+  selector:
+    app: mongo # ให้ Service นี้เชื่อมต่อกับ Pod ที่มี label ชื่อ app (ตรง matchLabels ใน Deployment)
+  ports:
+    - port: 27017 # กำหนด port ที่จะให้ Service นี้ใช้
+      targetPort: 27017 # กำหนด port ที่จะให้ Service นี้เชื่อมต่อไปยัง Pod
+      # clusterIP ไม่มี nodePort

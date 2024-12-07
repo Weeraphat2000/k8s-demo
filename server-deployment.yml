@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment # Deployment คือ การจัดการกับการรันของ Pod ใน Kubernetes
+metadata:
+  name: server-deployment
+spec:
+  replicas: 3 # จำนวน Pod ที่ต้องการให้รัน
+  selector:
+    matchLabels:
+      app: server # ให้ Deployment นี้จัดการกับ Pod ที่มี label ชื่อ component และมีค่าเป็น client
+  template:
+    metadata:
+      name: server-pods
+      labels:
+        app: server
+    spec: # specification of the pod's contents
+      containers:
+        - name: server
+          image: dekcode/todo-api:v5
+#
+#
+# ไม่ใช้แล้วเพราะว่าเปลี่ยนเป็นใช้ ClusterIP แทน
+#
+# --- # ใช้ --- เพื่อแยก Deployment แต่ละอัน
+# apiVersion: v1
+# kind: Service # Service คือ การเชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ Client
+# metadata:
+#   name: server-service-nodeport # ชื่อของ Service แทนที่จะเรียกด้วย IP ใช้ชื่อ Service แทนได้เลย
+#   # เช่น http://localhost:30001 => http://client-service
+#   # คุยกันผ่าน clusterIP
+# spec:
+#   type: NodePort # ประเภทของ Service ที่จะใช้
+#   selector:
+#     app: server # ให้ Service นี้เชื่อมต่อกับ Pod ที่มี label ชื่อ app (ตรง matchLabels ใน Deployment)
+#   ports:
+#     - port: 80 # กำหนด port ที่จะให้ Service นี้ใช้
+#       targetPort: 80 # กำหนด port ที่จะให้ Service นี้เชื่อมต่อไปยัง Pod
+#       nodePort: 30002 # กำหนด port ที่จะให้ Service นี้ใช้บน Node ของ Kubernetes
+--- # ใช้ --- เพื่อแยก Deployment แต่ละอัน
+apiVersion: v1
+kind: Service # Service คือ การเชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ mongo
+metadata:
+  name: server-service # ชื่อของ Service แทนที่จะเรียกด้วย IP ใช้ชื่อ Service แทนได้เลย
+  # เช่น http://localhost:30001 => http://client-service
+  # คุยกันผ่าน clusterIP
+spec:
+  type: ClusterIP # clusterIP คือ เชื่อมต่อระหว่าง Pod และ Pod ใน Cluster เท่านั้น
+  selector:
+    app: server # ให้ Service นี้เชื่อมต่อกับ Pod ที่มี label ชื่อ app (ตรง matchLabels ใน Deployment)
+  ports:
+    - port: 80 # กำหนด port ที่จะให้ Service นี้ใช้
+      targetPort: 80 # กำหนด port ที่จะให้ Service นี้เชื่อมต่อไปยัง Pod
+      # clusterIP ไม่มี nodePort

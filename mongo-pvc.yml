@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim # PersistentVolumeClaim คือ การขอใช้พื้นที่จัดเก็บข้อมูลใน Kubernetes
+metadata:
+  name: mongo-pvc # ชื่อของ PersistentVolumeClaim
+spec:
+  accessModes:
+    - ReadWriteMany # กำหนดว่าจะให้เขียนได้จาก Node ได้หลาย Node
+  resources:
+    requests:
+      storage: 1Gi # ขนาดพื้นที่จัดเก็บข้อมูลที่ขอใช้

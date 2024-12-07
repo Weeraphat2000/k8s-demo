@@ -1,0 +1,16 @@
+# สร้าง Service ชื่อ client-service ที่เชื่อมต่อกับ Pod ที่มี label ชื่อ app และให้ใช้ port 80
+
+# file ตัวอย่างการสร้าง Service ชื่อ client-service (kind: Service)
+
+apiVersion: v1
+kind: Service # Service คือ การเชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ Client
+metadata:
+  name: client-service
+spec:
+  type: NodePort # ประเภทของ Service ที่จะใช้
+  selector:
+    app: client # ให้ Service นี้เชื่อมต่อกับ Pod ที่มี label ชื่อ app (ตรง matchLabels ใน Deployment)
+  ports:
+    - port: 80 # กำหนด port ที่จะให้ Service นี้ใช้
+      targetPort: 80 # กำหนด port ที่จะให้ Service นี้เชื่อมต่อไปยัง Pod
+      nodePort: 30001 # กำหนด port ที่จะให้ Service นี้ใช้บน Node ของ Kubernetes

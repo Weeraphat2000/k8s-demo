@@ -1,0 +1,14 @@
+# สร้าง Pod ที่มีชื่อว่า client-pods และใช้ image จาก dekcode/todo-app:v4
+
+# file ตัวอย่างการสร้าง Pod ชื่อ client-pods (kind: Pod)
+
+apiVersion: v1
+kind: Pod # Pod คือ 1 โปรเซสที่รันใน Kubernetes
+metadata:
+  name: client-pods
+  labels:
+    app: client
+spec: # specification of the pod's contents
+  containers:
+    - name: client
+      image: dekcode/todo-app:v4

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment # Deployment คือ การจัดการกับการรันของ Pod ใน Kubernetes
+metadata:
+  name: client-deployment
+spec:
+  replicas: 3 # จำนวน Pod ที่ต้องการให้รัน
+  selector:
+    matchLabels:
+      app: client # ให้ Deployment นี้จัดการกับ Pod ที่มี label ชื่อ component และมีค่าเป็น client
+  template:
+    metadata:
+      name: client-pods
+      labels:
+        app: client
+    spec: # specification of the pod's contents
+      containers:
+        - name: client
+          image: dekcode/todo-app:v4
+--- # ใช้ --- เพื่อแยก Deployment แต่ละอัน หรือ Service แต่ละอัน
+apiVersion: v1
+kind: Service # Service คือ การเชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ Client
+metadata:
+  name: client-service # ชื่อของ Service แทนที่จะเรียกด้วย IP ใช้ชื่อ Service แทนได้เลย
+spec:
+  type: ClusterIP # NodePort คือ เอาไว้เชื่อมต่อระหว่าง Pod และ Pod หรือ Pod กับ Client โดยใช้ Node ของ Kubernetes
+  selector:
+    app: client # ให้ Service นี้เชื่อมต่อกับ Pod ที่มี label ชื่อ app (ตรง matchLabels ใน Deployment)
+  ports:
+    - port: 80 # กำหนด port ที่จะให้ Service นี้ใช้
+      targetPort: 80 # กำหนด port ที่จะให้ Service นี้เชื่อมต่อไปยัง Pod
+      # clusterIP ไม่มี nodePort
